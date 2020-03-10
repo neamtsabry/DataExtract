@@ -5,10 +5,12 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("ipumsr")
+#install.packages("ipumsr")
 library(ipumsr)
 library(dplyr, warn.conflicts = FALSE)
 ```
+
+Bringing in data with ipumsr package
 
 ```{r}
 # Note that you can pass in the loaded DDI into the `read_ipums_micro()`
@@ -39,3 +41,75 @@ usa_data2 <- usa_data %>%
          tranwork_factor=droplevels(as_factor(TRANWORK))
   )
 ```
+
+Make an indicator variable of whether someone is employed or not from empstat_factor. A reminder of the code from where you’ve done this before:
+
+```{r}
+usa_data2<-usa_data2 %>%
+  mutate(empstat_factor=if_else(empstat_factor=="Employed","Employed", "Unemployed"))
+```
+
+Recode newchild_factor so that it is a binary variable: yes vs. no.
+
+```{r}
+usa_data2<-usa_data2 %>%
+  mutate(newchild_factor=if_else(newchild_factor=="Yes","Yes","No"))
+```
+
+Create a binary variable of whether someone was in a STEM field or not from degfield_factor.
+
+```{r}
+usa_data2<-usa_data2 %>%
+  mutate(degfield_factor=if_else(degfield_factor %in% c("Environment and Natural Resources", "Computer and Information Sciences", "Engineering", "Biology and Life Sciences", "Mathematics and Statistics", "Physical Sciences"),"STEM", "Not STEM"))
+```
+
+Filter only the observations that are currently employed. Remember the filter function that we’ve seen before.
+
+```{r}
+usa_data2 <- usa_data2 %>%
+  filter(empstat_factor=="Employed")
+```
+
+Keep only the variables that you will need for the analysis (also keep the PERNUM and SERIAL ID variables that help keep the individual and household observations straight.). Read ahead to the Analysis section for the scope of what you want to save here.
+
+```{r}
+usa_data2 <-usa_data2 %>%
+  select(PERNUM,SERIAL,sex_factor,AGE,race_factor,tranwork_factor,TRANTIME)
+```
+
+Use the str() function to have R report the structure of the data to you.
+```{r}
+str(usa_data2)
+```
+
+Use favstats and tally functions from the mosaic package to look at each of the variables you have included in your data extract.
+
+```{r}
+library(mosaic)
+favstats(~AGE, data=usa_data2)
+favstats(~TRANTIME, data=usa_data2)
+tally(~sex_factor, data=usa_data2)
+tally(~race_factor, data=usa_data2)
+tally(~tranwork_factor, data=usa_data2)
+```
+
+Try another approach - use the skimr package
+
+```{r}
+#install.packages("skimr")
+library(skimr)
+skim(usa_data2)
+```
+
+Evaluate each variable. Are the distributions what you would expect? Are there unusual values?
+
+```{r}
+
+```
+
+Create and interpret a scatterplot of you main explanatory and response variables: age and travel time. For Unusual Observations, now clarify potential leverage/influence/outliers.
+
+```{r}
+
+```
+
