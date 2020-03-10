@@ -96,7 +96,7 @@ tally(~tranwork_factor, data=usa_data2)
 Try another approach - use the skimr package
 
 ```{r}
-#install.packages("skimr")
+# install.packages("skimr")
 library(skimr)
 skim(usa_data2)
 ```
@@ -110,6 +110,13 @@ Evaluate each variable. Are the distributions what you would expect? Are there u
 Create and interpret a scatterplot of you main explanatory and response variables: age and travel time. For Unusual Observations, now clarify potential leverage/influence/outliers.
 
 ```{r}
+ggplot(usa_data2,aes(x=AGE, y=TRANTIME)) +
+    geom_point() +           # Plot the scatterplot 
+    geom_smooth(method=lm,   # Add linear regression line
+                se=FALSE) 
 
+agTimeMd <- lm(TRANTIME~AGE, data=usa_data2)
+
+plot(agTimeMd, which=5)
 ```
 
