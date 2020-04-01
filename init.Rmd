@@ -5,9 +5,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#install.packages("ipumsr") 
+#install.packages("ipumsr")
 library(ipumsr)
 library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
 ```
 
 Bringing in data with ipumsr package
@@ -104,19 +105,46 @@ skim(usa_data2)
 Evaluate each variable. Are the distributions what you would expect? Are there unusual values?
 
 ```{r}
-
+ggplot(usa_data2, aes(x = AGE, fill = AGE)) + geom_bar()
 ```
+```{r}
+ggplot(usa_data2, aes(x = AGE, fill = AGE)) + geom_bar()
+ggplot(usa_data2, aes(x = TRANTIME, fill = TRANTIME)) + geom_bar()
+ggplot(usa_data2, aes(x = sex_factor, fill = sex_factor)) + geom_bar()
+ggplot(usa_data2, aes(x = race_factor, fill = race_factor)) + geom_bar()
+ggplot(usa_data2, aes(x = tranwork_factor, fill = tranwork_factor)) + geom_bar()
+```
+
+Most of the histograms of all the variables are right skewed. The category white in the race_factor variable and the category Auto, truck and Van in the transwork_factor variable are disproportionately bigger than to the other categories.
 
 Create and interpret a scatterplot of you main explanatory and response variables: age and travel time. For Unusual Observations, now clarify potential leverage/influence/outliers.
 
 ```{r}
 ggplot(usa_data2,aes(x=AGE, y=TRANTIME)) +
-    geom_point() +           # Plot the scatterplot 
+    geom_point() +           # Plot the scatterplot
     geom_smooth(method=lm,   # Add linear regression line
-                se=FALSE) 
+                se=FALSE)
 
 agTimeMd <- lm(TRANTIME~AGE, data=usa_data2)
 
 plot(agTimeMd, which=5)
 ```
+
+## Exercise 14 
+
+*Test whether the association between age and travel time (adjusted for other covariates as in the model above) varies by race race_factor. Save this model as m2*
+
+```{r}
+m2 <- lm(TRANTIME~AGE+race_factor, data=usa_data2)
+
+summary(m2)
+```
+
+## Exercise 15 
+
+*Interpret the coefficient for age in a sentence.*
+
+The coefficient for Age (0.02687): for every additional year of age, travel time increases on average by 0.02687 adjusting for the race_factor.
+
+## Exercise 16
 
