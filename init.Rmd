@@ -156,6 +156,11 @@ The coefficient for age means that every additional year in age is associated wi
 *Test whether the association between age and travel time (adjusted for other covariates as in the model above) varies by race race_factor. Save this model as m2*
 
 ```{r}
+usa_data2<-usa_data2 %>%
+  mutate(race_factor=if_else(race_factor=="White","White","Non-White"))
+```
+
+```{r}
 m2 <- lm(TRANTIME~AGE+race_factor, data=usa_data2)
 
 summary(m2)
@@ -165,7 +170,7 @@ summary(m2)
 
 *Interpret the coefficient for age in a sentence.*
 
-The coefficient for Age (0.02687): for every additional year of age, travel time increases on average by 0.02687 adjusting for the race_factor.
+The coefficient for Age (0.02687): for every additional year of age, travel time increases on average by 0.027204 adjusting for the race_factor.
 
 ## Exercise 16
 
