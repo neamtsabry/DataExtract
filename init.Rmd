@@ -130,6 +130,27 @@ agTimeMd <- lm(TRANTIME~AGE, data=usa_data2)
 plot(agTimeMd, which=5)
 ```
 
+## Eercise 11 
+
+*List which confounders you chose and provide a brief justification (~1 sentence) for why you think each variable is important to control for.*
+
+The first confounder we chose is TRANWORK, or means of transportation to work, since how to commute to work can significantly affect how long it takes you to get to work, i.e. public transportation vs. your own car. The second confounder we chose is sex, since we are looking at demographic information like age and race, therefore sex feels like an important demographic factor to include.
+
+## Eercise 12 
+
+*Estimate the association of age on travel time (traveltime=β0+β1⋅age+B′X+ϵ), adjusted for other covariates (as notated by the vector B′X). Save this as m1*
+
+```{r}
+m1<-lm(TRANTIME ~ AGE, data = usa_data2)
+summary(m1)
+```
+
+## Eercise 13 
+
+*Interpret the coefficient for age in a sentence.*
+
+The coefficient for age means that every additional year in age is associated with, on average, a 0.019764 minutes increase in travel time.
+
 ## Exercise 14 
 
 *Test whether the association between age and travel time (adjusted for other covariates as in the model above) varies by race race_factor. Save this model as m2*
@@ -147,5 +168,94 @@ summary(m2)
 The coefficient for Age (0.02687): for every additional year of age, travel time increases on average by 0.02687 adjusting for the race_factor.
 
 ## Exercise 16
+
+*What is the magnitude of the association between age and travel time for people of white race in your sample?*
+
+## Exercise 17
+
+*Use a nested F-test to compare this model to the model above without the interaction term. Interpret what you find in the context of this real world data example.*
+
+```{r}
+anova(m1,m2)
+```
+
+When creating a nested F tesdt with m1 and m2, we get a really small p-value (< 2.2e-16) in result, which means we have statistically significant evidence that m2 is a better model in predicting the response variable travel time. 
+
+## Exercise 18
+
+*Build your model, and save it as m3.*
+
+```{r}
+m3<-lm(TRANTIME~AGE+ AGE*race_factor + AGE*sex_factor + AGE*tranwork_factor, data=usa_data2)
+summary(m3)
+```
+
+## Exercise 19
+
+*Describe your process for how you chose this model. What did you define as “best”? Consider all of the ways we have discussed what a “good” model is.*
+
+I chose this model because it accounts for all the necessary confounders such as age, race, sex and means of transportation to work.
+
+## Exercise 20
+
+*What are the limitations of this model?*
+
+This model takes into accounts too many variables.
+
+## Exercise 21
+
+*Use the code below to generate a formatted table of your regression model output. Note that you’ll need to add in results="asis" in the beginning of the R code chunk (i.e., {r, message=FALSE, results="asis"}) to get the table output correctly.*
+
+```{r}
+library(stargazer)
+stargazer(m1,m2,m3, type="text")
+```
+
+## Exercise 22
+
+*Use the code below to generate a figure depicting the second model.*
+
+```{r}
+#calculating the different intercepts
+intercepts <- c(coef(m2)["(Intercept)"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorBlack/African American/Negro"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorAmerican Indian or Alaska Native"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorChinese"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorJapanese"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorOther Asian or Pacific Islander"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorOther race, nec"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorTwo major races"],
+                coef(m2)["(Intercept)"] + coef(m2)["race_factorThree or more major races"])
+
+
+
+slopes <- c(coef(m2)["AGE"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorBlack/African American/Negro"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorAmerican Indian or Alaska Native"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorChinese"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorJapanese"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorOther Asian or Pacific Islander"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorOther race, nec"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorTwo major races"],
+                coef(m2)["AGE"] + coef(m2)["AGE:race_factorThree or more major races"])
+
+#putting these into a new data frame with the slope and transmission indicator variable
+usadata.df <- data.frame(intercepts = intercepts,
+                       slopes = slopes,
+                       Race = levels(usa_data2$race_factor))
+#making the plot
+usaplot1<- ggplot(usa_data2, aes(x = AGE, y = TRANTIME)) + geom_point(color="grey", alpha = .1) + labs( x= 'Age', y='Commute Time (Minutes)') +
+coord_cartesian(ylim = c(0,100)) + 
+  geom_abline(aes(intercept = intercepts, 
+                  slope = slopes, 
+                  color = Race), data = usadata.df)
+usaplot1
+```
+
+## Exercise 23 
+
+*Specify different coordinates for the y-axis to start and end (coord_cartesian) to zoom in on the pattern.*
+
+How does this pattern explain your explanation of these patterns from the model output above? Explain in a paragraph of 3-5 sentences.
 
 
